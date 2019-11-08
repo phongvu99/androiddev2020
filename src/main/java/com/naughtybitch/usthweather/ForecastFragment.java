@@ -21,8 +21,10 @@ public class ForecastFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = new View(getContext());
-        v.setBackgroundColor(0xFF0000);
+        v.setBackgroundColor(0xFFFF0000);
         return v;
     }
+
+    onCrea
 
 }
