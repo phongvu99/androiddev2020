@@ -3,6 +3,7 @@ package com.naughtybitch.usthweather;
 import androidx.appcompat.app.AppCompatActivity;
 
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.app.Fragment;
 import android.graphics.Color;
@@ -21,7 +22,7 @@ public class WeatherActivity extends AppCompatActivity {
 
 //        // Create a new fragment to be placed in the activity !
 //        ForecastFragment firstFragment = new ForecastFragment();
-//        firstFragment.getView().setBackgroundColor(Color.RED);
+////        firstFragment.getView().setBackgroundColor(Color.RED);
 //
 //        // Add the fragment to the container LinearLayout
 //        getSupportFragmentManager().beginTransaction().add(
