@@ -3,12 +3,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".WeatherFragment">
+    tools:context=".WeatherFragment"
+    android:id="@+id/weather_container"
+    android:background="@drawable/neon_life">
 
     <ImageView
+        android:id="@+id/lemons"
+        android:contentDescription="@string/lemons"
         android:layout_width="200dp"
         android:layout_height="200dp"
         android:layout_centerInParent="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="20dp"
         android:src="@drawable/lemons" />
 
     <TextView
@@ -16,13 +22,21 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
+        android:layout_toStartOf="@+id/lemons"
         android:text="@string/current_weather" />
 
-    <TextView
-        android:id="@+id/location"
+    <RelativeLayout
+        android:id="@+id/location_container"
+        android:layout_toEndOf="@+id/lemons"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:text="@string/location" />
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:text="@string/location" />
+    </RelativeLayout>
+
 
 </RelativeLayout>
