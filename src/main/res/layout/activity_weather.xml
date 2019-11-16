@@ -6,10 +6,21 @@
     android:orientation="vertical">
 
     <fragment
+        android:id="@+id/weather_fragment"
+        android:name="com.naughtybitch.usthweather.WeatherFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="20dp" />
+
+    <fragment
         android:id="@+id/forecast_fragment"
         android:name="com.naughtybitch.usthweather.ForecastFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp" />
 
 </LinearLayout>
 
