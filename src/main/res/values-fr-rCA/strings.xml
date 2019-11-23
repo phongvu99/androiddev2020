@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">USTH Weather</string>
+    <string name="close">Fermer</string>
+    <string name="cloudy">Nuageux</string>
+    <string name="current_weather">156F  Semble Légitime</string>
+    <string name="date">Date</string>
+    <string name="friday">Vendredi</string>
+    <string name="hello_blank_fragment">Bonjour fragment vigre</string>
+    <string name="lemons">Citrons</string>
+    <string name="lightning">Foudre</string>
+    <string name="location">La forêt Amazonienne</string>
+    <string name="monday">Lundi</string>
+    <string name="mostly_cloudy">Plutôt nuageux</string>
+    <string name="mostly_sunny">Plutôt ensoleillé</string>
+    <string name="open">Ouvre</string>
+    <string name="partly_sunny">Partiellement ensoleillé</string>
+    <string name="rain">Pluie</string>
+    <string name="rainbow">Arc en ciel</string>
+    <string name="saturday">Samedi</string>
+    <string name="shower">Douche</string>
+    <string name="snowy">Neigeux</string>
+    <string name="sunday">Dimanche</string>
+    <string name="sunshine">Ensoleillement</string>
+    <string name="thunderstorm">Orage</string>
+    <string name="thursday">Jeudi</string>
+    <string name="tuesday">Mardi</string>
+    <string name="wednesday">Mercredi</string>
+    <string name="week1">Semaine 1</string>
+    <string name="week2">Semaine 2</string>
+    <string name="windy">Venteux</string>
+</resources>
