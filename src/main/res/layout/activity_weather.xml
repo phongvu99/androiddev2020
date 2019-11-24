@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".WeatherActivity">
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/sliding_tabs"
@@ -22,14 +24,21 @@
 
     </androidx.viewpager.widget.ViewPager>
 
-    <fragment
-        android:id="@+id/test"
-        android:name="com.naughtybitch.usthweather.WeatherAndForecastFragment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="20dp">
 
-    </fragment>
+    <!--    <include-->
+    <!--        layout="@layout/fragment_weather"/>-->
+    <!--    -->
+    <!--    <include-->
+    <!--        layout="@layout/fragment_forecast"/>-->
+
+    <!--    <fragment-->
+    <!--        android:id="@+id/test"-->
+    <!--        android:name="com.naughtybitch.usthweather.WeatherAndForecastFragment"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="wrap_content">-->
+
+    <!--    </fragment>-->
+
 
 </LinearLayout>
 

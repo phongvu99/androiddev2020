@@ -1,10 +1,35 @@
 <resources>
     <string name="app_name">USTH Weather</string>
+    <string name="monday">Monday</string>
+    <string name="tuesday">Tuesday</string>
+    <string name="wednesday">Wednesday</string>
     <string name="thursday">Thursday</string>
+    <string name="friday">Friday</string>
+    <string name="saturday">Saturday</string>
+    <string name="sunday">Sunday</string>
     <string name="date">Date</string>
-    <string name="location">Paris</string>
-    <string name="current_weather">12C \nCloudy</string>
+    <string name="week1">Week 1</string>
+    <string name="week2">Week 2</string>
+    <string name="location">Amazon Rainforest</string>
+    <string name="current_weather">156F  Seems Legit</string>
+    <string name="mostly_cloudy">Mostly cloudy</string>
+    <string name="windy">Windy</string>
+    <string name="cloudy">Cloudy</string>
+    <string name="thunderstorm">Thunderstorm</string>
+    <string name="shower">Shower</string>
+    <string name="rain">Rain</string>
+    <string name="partly_sunny">Partly sunny</string>
+    <string name="mostly_sunny">Mostly sunny</string>
+    <string name="sunshine">Sunshine</string>
+    <string name="credit" translatable="false">Icon made by Vitaly Gorbachev from www.flaticon.com</string>
+    <string name="rainbow">Rainbow</string>
+    <string name="snowy">Snowy</string>
+    <string name="lightning">Lightning</string>
     <string name="lemons">Lemons</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
+    <string name="duration" translatable="false">0:00</string>
+    <string name="current_position" translatable="false">0:00</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
