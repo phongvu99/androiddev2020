@@ -29,4 +29,6 @@
     <string name="week1">Semaine 1</string>
     <string name="week2">Semaine 2</string>
     <string name="windy">Venteux</string>
+    <string name="refresh">Rafraîchir</string>
+    <string name="settings">Paramètres</string>
 </resources>

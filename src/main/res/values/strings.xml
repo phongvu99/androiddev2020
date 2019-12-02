@@ -28,6 +28,8 @@
     <string name="lemons">Lemons</string>
     <string name="open">Open</string>
     <string name="close">Close</string>
+    <string name="refresh">Refresh</string>
+    <string name="settings">Settings</string>
     <string name="duration" translatable="false">0:00</string>
     <string name="current_position" translatable="false">0:00</string>
     <!-- TODO: Remove or change this placeholder text -->

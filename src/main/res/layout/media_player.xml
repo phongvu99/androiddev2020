@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/blue_sky"
+    android:paddingTop="24dp">
 
     <RelativeLayout
         android:id="@+id/time_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
         android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:layout_marginBottom="24dp">
+        android:paddingEnd="12dp">
 
         <TextView
             android:id="@+id/current_position"
@@ -31,6 +33,29 @@
 
         </TextView>
     </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/button_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/seek_bar"
+        android:layout_marginTop="12dp"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageButton
+            android:id="@+id/control_playback"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_marginBottom="12dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/lemons"
+            android:scaleType="fitCenter"
+            android:src="@drawable/play_button">
+
+        </ImageButton>
+
+    </LinearLayout>
 
 
     <SeekBar

@@ -8,6 +8,13 @@
     android:orientation="vertical"
     tools:context=".WeatherActivity">
 
+    <include
+        layout="@layout/app_bar_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </include>
+
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/sliding_tabs"
         android:layout_width="match_parent"

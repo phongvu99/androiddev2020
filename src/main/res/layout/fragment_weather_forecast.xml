@@ -8,7 +8,7 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="225dp"
         android:background="@drawable/neon_life">
 
         <RelativeLayout
@@ -45,7 +45,7 @@
             <ImageView
                 android:id="@+id/lemons"
                 android:layout_width="match_parent"
-                android:layout_height="150dp"
+                android:layout_height="wrap_content"
                 android:layout_below="@+id/weather_location_container"
                 android:contentDescription="@string/lemons"
                 android:src="@drawable/forest_on_fire" />
@@ -65,10 +65,12 @@
             android:layout_height="wrap_content"
             android:background="@drawable/transfile"
             android:orientation="vertical"
-            android:paddingTop="20dp"
             android:paddingBottom="50dp">
 
-            <include layout="@layout/media_player">
+            <include
+                layout="@layout/media_player"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
             </include>
 

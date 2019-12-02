@@ -1,27 +1,35 @@
 package com.naughtybitch.usthweather;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
+import android.content.Context;
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
-import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 import com.google.android.material.tabs.TabLayout;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.util.Locale;
 
 public class WeatherActivity extends AppCompatActivity {
@@ -29,7 +37,7 @@ public class WeatherActivity extends AppCompatActivity {
     MediaPlayer mediaPlayer;
     File convertedFile;
     FileInputStream fileInputStream;
-    FileOutputStream out;
+    FileOutputStream outputStream;
 
     int mediaPos, mediaMax;
     SeekBar seekBar;
@@ -39,12 +47,16 @@ public class WeatherActivity extends AppCompatActivity {
 
     TextView current, duration;
 
+    ImageButton imageButton;
+
+    HomeFragmentPagerAdapter adapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
         Log.i("create_tag", "Creating...");
-        HomeFragmentPagerAdapter adapter = new HomeFragmentPagerAdapter(getSupportFragmentManager());
+        adapter = new HomeFragmentPagerAdapter(getSupportFragmentManager());
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         viewPager.setOffscreenPageLimit(3);
         viewPager.setAdapter(adapter);
@@ -52,20 +64,22 @@ public class WeatherActivity extends AppCompatActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(viewPager);
         handler = new Handler();
-        handler.removeCallbacks(moveSeekBarThread);
-        handler.postDelayed(moveSeekBarThread, 200);
 
-        // No brain way
-//        mediaPlayer = MediaPlayer.create(this, R.raw.champion_of_the_world_coldplay);
-//        mediaPlayer.start();
+        // Custom ActionBar
+        final Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        setSupportActionBar(myToolbar);
 
         // Programmatically way
-        InputStream inputStream = this.getResources().openRawResource(R.raw.champion_of_the_world_coldplay);
-        try {
-            takeInputStream(inputStream);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        InputStream inputStream = getResources().openRawResource(R.raw.champion_of_the_world_coldplay);
+        takeInputStream(inputStream, "CP.mp3");
+        // No brain way
+        mediaPlayer = MediaPlayer.create(this, R.raw.champion_of_the_world_coldplay);
+
+        handler.removeCallbacks(moveSeekBarThread);
+        handler.removeCallbacks(controlPlayback);
+        handler.postDelayed(controlPlayback, 200);
+        handler.postDelayed(moveSeekBarThread, 200);
+
 
 //        // Create a new fragment to be placed in the activity !
 //        ForecastFragment firstFragment =  new ForecastFragment();
@@ -76,6 +90,27 @@ public class WeatherActivity extends AppCompatActivity {
 //                R.id.container, firstFragment).commit();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        switch (id) {
+            case R.id.settings:
+                Intent intent = new Intent(WeatherActivity.this, PrefActivity.class);
+                startActivity(intent);
+                break;
+            default:
+                return true;
+        }
+        return true;
+    }
+
     private String getTimeString(long millis) {
         StringBuffer buf = new StringBuffer();
 
@@ -83,22 +118,43 @@ public class WeatherActivity extends AppCompatActivity {
         int seconds = (int) (((millis % (1000 * 60 * 60)) % (1000 * 60)) / 1000);
 
         buf
-                .append(String.format(Locale.US, "%02d", minutes))
+                .append(String.format(Locale.US, "%01d", minutes))
                 .append(":")
                 .append(String.format(Locale.US, "%02d", seconds));
 
         return buf.toString();
     }
 
-    private Runnable moveSeekBarThread = new Runnable() {
+    private Runnable controlPlayback = new Runnable() {
         @Override
         public void run() {
             Fragment page = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.view_pager + ":" + viewPager.getCurrentItem());
             WeatherAndForecastFragment fragment = (WeatherAndForecastFragment) page;
             if (page != null) {
-                current = fragment.getView().findViewById(R.id.current_position);
-                duration = fragment.getView().findViewById(R.id.duration);
-                seekBar = fragment.getView().findViewById(R.id.seek_bar);
+                try {
+                    imageButton = fragment.getView().findViewById(R.id.control_playback);
+                    seekBar = fragment.getView().findViewById(R.id.seek_bar);
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
+
+                if (mediaPlayer.isPlaying()) {
+                    imageButton.setImageResource(R.drawable.pause_button);
+                } else {
+                    imageButton.setImageResource(R.drawable.play_button);
+                }
+                imageButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mediaPlayer.isPlaying()) {
+                            mediaPlayer.pause();
+                            imageButton.setImageResource(R.drawable.play_button);
+                        } else {
+                            mediaPlayer.start();
+                            imageButton.setImageResource(R.drawable.pause_button);
+                        }
+                    }
+                });
                 seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -118,6 +174,26 @@ public class WeatherActivity extends AppCompatActivity {
 
                     }
                 });
+            }
+            handler.postDelayed(this, 1); // Looping the thread after 0.001 second
+        }
+
+    };
+
+
+    private Runnable moveSeekBarThread = new Runnable() {
+        @Override
+        public void run() {
+            Fragment page = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.view_pager + ":" + viewPager.getCurrentItem());
+            WeatherAndForecastFragment fragment = (WeatherAndForecastFragment) page;
+            if (page != null) {
+                try {
+                    current = fragment.getView().findViewById(R.id.current_position);
+                    duration = fragment.getView().findViewById(R.id.duration);
+                    seekBar = fragment.getView().findViewById(R.id.seek_bar);
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
                 if (mediaPlayer.isPlaying()) {
                     mediaPos = mediaPlayer.getCurrentPosition();
                     mediaMax = mediaPlayer.getDuration();
@@ -125,22 +201,25 @@ public class WeatherActivity extends AppCompatActivity {
                     duration.setText(getTimeString(mediaMax));
                     seekBar.setMax(mediaMax);
                     seekBar.setProgress(mediaPos);
-                    handler.postDelayed(this, 1); // Looping the thread after 0.001 second
                 }
             }
+            handler.postDelayed(this, 1); // Looping the thread after 0.001 second
         }
     };
 
-    private void takeInputStream(InputStream inputStream) throws IOException {
+    private void takeInputStream(InputStream inputStream, String resourceName) {
+        String path = Environment.getExternalStorageDirectory() + "/Android/data/com.naughtybitch.usthweather/" + resourceName;
         try {
-            convertedFile = File.createTempFile("convertedFile", ".dat", getDir("filez", 0));
-            out = new FileOutputStream(convertedFile);
-            byte[] buffer = new byte[16384];
+//            convertedFile = File.createTempFile("convertedFile", ".dat", getDir("filez", 0));
+//            outputStream = new FileOutputStream(convertedFile);
+            outputStream = new FileOutputStream(path);
+            byte[] buffer = new byte[1024];
             int length = 0;
             while ((length = inputStream.read(buffer)) != -1) {
-                out.write(buffer, 0, length);
+                outputStream.write(buffer, 0, length);
             }
-            out.close();
+            outputStream.close();
+            inputStream.close();
             playFile();
         } catch (IOException e) {
             e.printStackTrace();
@@ -148,15 +227,11 @@ public class WeatherActivity extends AppCompatActivity {
     }
 
     private void playFile() {
-        try {
-            mediaPlayer = new MediaPlayer();
-            fileInputStream = new FileInputStream(convertedFile);
-            mediaPlayer.setDataSource(fileInputStream.getFD());
-            mediaPlayer.prepare();
-            mediaPlayer.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//            fileInputStream = new FileInputStream();
+//            mediaPlayer.setDataSource(fileInputStream.getFD());
+        mediaPlayer = new MediaPlayer();
+//            mediaPlayer.prepare(); // Prepare to crash
+        mediaPlayer.setLooping(true);
     }
 
     @Override
