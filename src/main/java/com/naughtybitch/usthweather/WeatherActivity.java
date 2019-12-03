@@ -4,13 +4,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
-
-import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,24 +19,20 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.google.android.material.tabs.TabLayout;
-
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
 import java.util.Locale;
 
 public class WeatherActivity extends AppCompatActivity {
 
     MediaPlayer mediaPlayer;
-    File convertedFile;
-    FileInputStream fileInputStream;
     FileOutputStream outputStream;
 
     int mediaPos, mediaMax;
@@ -63,10 +59,17 @@ public class WeatherActivity extends AppCompatActivity {
         // Give the TabLayout the ViewPager
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(viewPager);
-        handler = new Handler();
+        handler = new Handler(Looper.getMainLooper()){
+            @Override
+            public void handleMessage(Message msg) {
+                // This method is executed in main thread
+                String content = msg.getData().getString("server_response");
+                Toast.makeText(WeatherActivity.this, content, Toast.LENGTH_SHORT).show();
+            }
+        };
 
         // Custom ActionBar
-        final Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
+        Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
         // Programmatically way
@@ -101,8 +104,32 @@ public class WeatherActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         switch (id) {
+            case R.id.refresh:
+                Thread t = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            // wait for 5 seconds to simulate a long network access
+                            Thread.sleep(5000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+                        // Assume that we got our data from server
+                        Bundle bundle = new Bundle();
+                        bundle.putString("server_response", "some sample json here");
+
+                        // Notify main thread
+                        Message msg = new Message();
+                        msg.setData(bundle);
+                        handler.sendMessage(msg);
+                    }
+                });
+                t.start();
+                Toast.makeText(this, "You did it!", Toast.LENGTH_SHORT).show();
+                break;
             case R.id.settings:
-                Intent intent = new Intent(WeatherActivity.this, PrefActivity.class);
+                Intent intent = new Intent(this, PrefActivity.class);
                 startActivity(intent);
                 break;
             default:
@@ -125,7 +152,7 @@ public class WeatherActivity extends AppCompatActivity {
         return buf.toString();
     }
 
-    private Runnable controlPlayback = new Runnable() {
+    private Runnable controlPlayback =  new Runnable() {
         @Override
         public void run() {
             Fragment page = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.view_pager + ":" + viewPager.getCurrentItem());
@@ -179,7 +206,6 @@ public class WeatherActivity extends AppCompatActivity {
         }
 
     };
-
 
     private Runnable moveSeekBarThread = new Runnable() {
         @Override
