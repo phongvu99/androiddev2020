@@ -5,7 +5,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -23,12 +25,13 @@ import android.widget.Toast;
 
 
 import com.google.android.material.tabs.TabLayout;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Locale;
+
+import static java.lang.Thread.sleep;
 
 public class WeatherActivity extends AppCompatActivity {
 
@@ -59,14 +62,7 @@ public class WeatherActivity extends AppCompatActivity {
         // Give the TabLayout the ViewPager
         TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
         tabLayout.setupWithViewPager(viewPager);
-        handler = new Handler(Looper.getMainLooper()){
-            @Override
-            public void handleMessage(Message msg) {
-                // This method is executed in main thread
-                String content = msg.getData().getString("server_response");
-                Toast.makeText(WeatherActivity.this, content, Toast.LENGTH_SHORT).show();
-            }
-        };
+        handler = new Handler(Looper.getMainLooper());
 
         // Custom ActionBar
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
@@ -93,6 +89,57 @@ public class WeatherActivity extends AppCompatActivity {
 //                R.id.container, firstFragment).commit();
     }
 
+    private class NetworkRequest extends AsyncTask<URL, Integer, Bitmap> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Bitmap doInBackground(URL... urls) {
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        // wait for 5 seconds to simulate a long network access
+                        sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    // Assume that we got our data from server
+                    Bundle bundle = new Bundle();
+                    bundle.putString("server_response", "some sample json here");
+
+                    // Notify main thread
+                    Message msg = new Message();
+                    msg.setData(bundle);
+                    handler.sendMessage(msg);
+                }
+            });
+            t.start();
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            handler = new Handler(Looper.getMainLooper()){
+                @Override
+                public void handleMessage(Message msg) {
+                    // This method is executed in main thread
+                    String content = msg.getData().getString("server_response");
+                    Toast.makeText(WeatherActivity.this, content, Toast.LENGTH_SHORT).show();
+                }
+            };
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -105,27 +152,7 @@ public class WeatherActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
             case R.id.refresh:
-                Thread t = new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            // wait for 5 seconds to simulate a long network access
-                            Thread.sleep(5000);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-
-                        // Assume that we got our data from server
-                        Bundle bundle = new Bundle();
-                        bundle.putString("server_response", "some sample json here");
-
-                        // Notify main thread
-                        Message msg = new Message();
-                        msg.setData(bundle);
-                        handler.sendMessage(msg);
-                    }
-                });
-                t.start();
+                new NetworkRequest().execute();
                 Toast.makeText(this, "You did it!", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.settings:
