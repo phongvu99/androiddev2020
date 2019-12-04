@@ -2,8 +2,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.naughtybitch.usthweather">
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"></uses-permission>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"></uses-permission>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE">
+
+    </uses-permission>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE">
+
+    </uses-permission>
+
+    <uses-permission android:name="android.permission.INTERNET">
+
+    </uses-permission>
 
     <application
         android:allowBackup="true"
@@ -12,7 +20,9 @@
         android:roundIcon="@mipmap/sun"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <activity android:name=".PrefActivity"></activity>
+        <activity android:name=".PrefActivity">
+
+        </activity>
         <activity android:name=".WeatherActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

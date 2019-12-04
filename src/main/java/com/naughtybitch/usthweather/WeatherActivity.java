@@ -4,8 +4,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
+
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -18,23 +20,34 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
 import com.google.android.material.tabs.TabLayout;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Locale;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import static java.lang.Thread.sleep;
 
 public class WeatherActivity extends AppCompatActivity {
 
+    Bitmap bitmap;
+
+    URL url;
     MediaPlayer mediaPlayer;
     FileOutputStream outputStream;
 
@@ -45,6 +58,9 @@ public class WeatherActivity extends AppCompatActivity {
     private ViewPager viewPager;
 
     TextView current, duration;
+    ImageView lemon;
+
+    RotateAnimation animation;
 
     ImageButton imageButton;
 
@@ -93,21 +109,50 @@ public class WeatherActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
+            try {
+
+                handler = new Handler(Looper.getMainLooper()) {
+                    @Override
+                    public void handleMessage(Message msg) {
+                        // This method is executed in main thread
+                        String content = msg.getData().getString("server_response");
+                        Toast.makeText(WeatherActivity.this, content, Toast.LENGTH_SHORT).show();
+                    }
+                };
+
+                // Initialize URL
+                url = new URL("https://ictlab.usth.edu.vn/wp-content/uploads/2018/03/usth-vf-180.png");
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
             super.onPreExecute();
         }
 
         @Override
-        protected Bitmap doInBackground(URL... urls) {
+        protected Bitmap doInBackground(final URL... urls) {
             Thread t = new Thread(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        // wait for 5 seconds to simulate a long network access
-                        sleep(5000);
-                    } catch (InterruptedException e) {
+                        // Make a request to server
+                        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+                        connection.setRequestMethod("GET");
+                        connection.setDoInput(true);
+                        // Allow reading response code and response data connection
+                        connection.connect();
+                        // Receive response
+                        int response = connection.getResponseCode();
+                        Log.i("USTHWeather", "The response is " + response);
+                        InputStream is = connection.getInputStream();
+
+                        // Process image response
+                        bitmap = BitmapFactory.decodeStream(is);
+                        Log.i("bitmap", "Bitmap is " + bitmap);
+
+                        connection.disconnect();
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
-
                     // Assume that we got our data from server
                     Bundle bundle = new Bundle();
                     bundle.putString("server_response", "some sample json here");
@@ -119,7 +164,21 @@ public class WeatherActivity extends AppCompatActivity {
                 }
             });
             t.start();
-            return null;
+            // Wait for the request, else bitmap might be null
+            int timeout = 0;
+            while (bitmap == null) {
+                if (timeout == 10) {
+                    Log.i("timeout", "Timeout, failed to get the image");
+                    break;
+                }
+                try {
+                    Thread.sleep(1000);
+                    timeout++;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            return bitmap;
         }
 
         @Override
@@ -129,14 +188,17 @@ public class WeatherActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Bitmap bitmap) {
-            handler = new Handler(Looper.getMainLooper()){
-                @Override
-                public void handleMessage(Message msg) {
-                    // This method is executed in main thread
-                    String content = msg.getData().getString("server_response");
-                    Toast.makeText(WeatherActivity.this, content, Toast.LENGTH_SHORT).show();
-                }
-            };
+
+            Fragment page = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.view_pager + ":" + viewPager.getCurrentItem());
+            WeatherAndForecastFragment fragment = (WeatherAndForecastFragment) page;
+            if (page != null && bitmap != null) {
+                ImageView logo = (ImageView) fragment.getView().findViewById(R.id.lemons_test);
+                logo.setImageBitmap(bitmap);
+            }
+            else {
+                Toast.makeText(WeatherActivity.this, "Timeout! \nDid you connect to the internet?", Toast.LENGTH_SHORT).show();
+            }
+
         }
     }
 
@@ -152,8 +214,8 @@ public class WeatherActivity extends AppCompatActivity {
         int id = item.getItemId();
         switch (id) {
             case R.id.refresh:
-                new NetworkRequest().execute();
-                Toast.makeText(this, "You did it!", Toast.LENGTH_SHORT).show();
+                new NetworkRequest().execute(url);
+                Toast.makeText(this, "Please wait...", Toast.LENGTH_LONG).show();
                 break;
             case R.id.settings:
                 Intent intent = new Intent(this, PrefActivity.class);
@@ -179,9 +241,14 @@ public class WeatherActivity extends AppCompatActivity {
         return buf.toString();
     }
 
-    private Runnable controlPlayback =  new Runnable() {
+    private Runnable controlPlayback = new Runnable() {
         @Override
         public void run() {
+            animation = new RotateAnimation(0f, 360f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+            animation.setInterpolator(new LinearInterpolator());
+            animation.setRepeatCount(Animation.INFINITE);
+            animation.setDuration(2000);
+            animation.setFillAfter(true);
             Fragment page = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.view_pager + ":" + viewPager.getCurrentItem());
             WeatherAndForecastFragment fragment = (WeatherAndForecastFragment) page;
             if (page != null) {
@@ -202,9 +269,11 @@ public class WeatherActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         if (mediaPlayer.isPlaying()) {
                             mediaPlayer.pause();
+                            lemon.clearAnimation();
                             imageButton.setImageResource(R.drawable.play_button);
                         } else {
                             mediaPlayer.start();
+                            lemon.startAnimation(animation);
                             imageButton.setImageResource(R.drawable.pause_button);
                         }
                     }
@@ -229,7 +298,7 @@ public class WeatherActivity extends AppCompatActivity {
                     }
                 });
             }
-            handler.postDelayed(this, 1); // Looping the thread after 0.001 second
+            handler.postDelayed(this, 1000); // Looping the thread after 1 second
         }
 
     };
@@ -241,6 +310,7 @@ public class WeatherActivity extends AppCompatActivity {
             WeatherAndForecastFragment fragment = (WeatherAndForecastFragment) page;
             if (page != null) {
                 try {
+                    lemon = fragment.getView().findViewById(R.id.lemons_test);
                     current = fragment.getView().findViewById(R.id.current_position);
                     duration = fragment.getView().findViewById(R.id.duration);
                     seekBar = fragment.getView().findViewById(R.id.seek_bar);
@@ -256,7 +326,7 @@ public class WeatherActivity extends AppCompatActivity {
                     seekBar.setProgress(mediaPos);
                 }
             }
-            handler.postDelayed(this, 1); // Looping the thread after 0.001 second
+            handler.postDelayed(this, 1000); // Looping the thread after 1 second
         }
     };
 

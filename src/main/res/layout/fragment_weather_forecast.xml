@@ -8,13 +8,13 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="225dp"
+        android:layout_height="wrap_content"
         android:background="@drawable/neon_life">
 
         <RelativeLayout
             android:id="@+id/weather_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="200dp"
             android:background="@drawable/frame_go"
             tools:context=".WeatherFragment">
 
@@ -43,10 +43,14 @@
             </RelativeLayout>
 
             <ImageView
-                android:id="@+id/lemons"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:id="@+id/lemons_test"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
                 android:layout_below="@+id/weather_location_container"
+                android:layout_alignParentBottom="false"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
                 android:contentDescription="@string/lemons"
                 android:src="@drawable/forest_on_fire" />
 
